@@ -1,0 +1,81 @@
+<section class="relative container mx-auto mt-4 pb-4 px-4 sm:px-6 lg:px-8">
+  <.modal :if={@show} on_cancel={JS.push("hide_post")} show={true} id="post-view">
+    <div class="prose">
+      <h1><%= Enum.at(@posts, @index).title %></h1>
+      
+      <div>
+        <%= Enum.at(@posts, @index).content %>
+      </div>
+    </div>
+  </.modal>
+  
+  <%!-- <div :if={@show} id="post-view" class="relative z-50">
+    <div class="flex p-4 justify-center items-center fixed inset-0 bg-zinc-500/90 transition-opacity">
+      <div class="w-full max-w-3xl bg-white rounded-xl p-4 sm:p-6 relative">
+        <div class="absolute top-6 right-5">
+          <button
+            phx-click={JS.hide(%JS{}, to: "#post-view") |> JS.push("hide_post")}
+            type="button"
+            class="-m-3 p-3 opacity-20 hover:opacity-40"
+          >
+            <.icon name="hero-x-mark-solid" class="w-h h-5" />
+          </button>
+        </div>
+        
+        <div class="prose">
+          <h1><%= Enum.at(@posts, @index).title %></h1>
+          
+          <div>
+            <%= Enum.at(@posts, @index).content %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div> --%>
+  <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 auto-rows-auto gap-4">
+    <div
+      :for={{post, index} <- Enum.with_index(Enum.take(@posts, 12))}
+      class="featured-post rounded-xl relative text-white px-4 py-12"
+      style={post.image !== nil && "background: transparent;"}
+    >
+      <img
+        :if={post.image}
+        class="object-cover rounded-xl w-full h-full absolute left-0 top-0 -z-10"
+        src={post.image}
+        alt=""
+      />
+      <div
+        :if={post.image}
+        class="bg-black rounded-xl w-full h-full absolute left-0 top-0 -z-10 opacity-20"
+      >
+      </div>
+      
+      <h3 class="text-[18px] text-white font-black"><%= post.title %></h3>
+      
+      <p class="mt-[6px] text-[14px]"><%= String.slice(post.content, 0..150) %>...</p>
+       <button phx-click="show_post" phx-value-index={index} class="absolute inset-0"></button>
+    </div>
+  </div>
+  
+  <div class="mt-4">
+    <h2 class="flex text-xl gap-4 justify-center font-black">
+      <div class="flex-none self-start">More News</div>
+      
+      <div class="h-[1px] translate-y-[4px] w-full bg-black self-center"></div>
+    </h2>
+    
+    <div>
+      <div
+        :for={{post, index} <- Enum.with_index(@posts)}
+        phx-click="show_post"
+        phx-value-index={index}
+        class="group px-4 hover:bg-gray-100 relative cursor-pointer first:border-t-0 
+      border-t-2 py-4 border-[#dddddd]"
+      >
+        <h3 class="group-hover:underline my-2 text-xl font-bold"><%= post.title %></h3>
+        
+        <p><%= String.slice(post.content, 0..180) %>...</p>
+      </div>
+    </div>
+  </div>
+</section>

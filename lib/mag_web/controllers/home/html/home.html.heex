@@ -1,0 +1,10 @@
+
+<section class="container mx-auto py-10 px-4">
+  <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 auto-rows-auto gap-4">
+    <div class="featured-post rounded-xl relative text-white px-4 py-12" :for={post <- Enum.take(@posts, 12)}>
+      <h2 class="text-[18px] text-white font-black"><%= post.title %></h2>
+      <p class="mt-[6px] text-[14px]"><%= String.slice(post.content, 0..150) %>...</p>
+      <a href="/" class="absolute inset-0"></a>
+    </div>
+  </div>
+</section>

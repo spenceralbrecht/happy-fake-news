@@ -1,0 +1,66 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/* This file is for your main application CSS */
+.container {
+  width: 100%
+}
+
+@media (min-width: 480px) {
+  .container {
+      max-width:480px
+  }
+}
+
+@media (min-width: 640px) {
+  .container {
+      max-width:640px
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+      max-width:768px
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+      max-width:1024px
+  }
+}
+
+@media (min-width: 1280px) {
+  .container {
+      max-width:1280px
+  }
+}
+
+@media (min-width: 1400px) {
+  .container {
+      max-width:1400px
+  }
+}
+
+.featured-post {
+  background: linear-gradient(44.24deg, rgba(0, 0, 0, 0) 0%, rgba(255, 255, 255, 0.6) 100%);
+  transition: all 0.2s linear;
+}
+
+.featured-post:nth-child(1) { background-color: #253d3b;  }
+.featured-post:nth-child(2) { background-color: #096076; }
+.featured-post:nth-child(3) { background-color: #595858; }
+.featured-post:nth-child(4) { background-color: #426686; }
+.featured-post:nth-child(5) { background-color: #3e2d56; }
+.featured-post:nth-child(6) { background-color: #32425e; }
+.featured-post:nth-child(7) { background-color: #423e35; }
+.featured-post:nth-child(8) { background-color: #5f3709; }
+.featured-post:nth-child(9) { background-color: #252423; }
+.featured-post:nth-child(10) { background-color: #0b3347; }
+.featured-post:nth-child(11) { background-color: #2b2b2b; }
+.featured-post:nth-child(12) { background-color: #18456c; }
+
+.featured-post:hover {
+  filter: brightness(0.85);
+}
