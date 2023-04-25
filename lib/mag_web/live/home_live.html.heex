@@ -2,10 +2,10 @@
   <.modal :if={@show} on_cancel={JS.push("hide_post")} show={true} id="post-view">
     <div>
       <div tabindex="1" class="prose">
-        <h1><%= Enum.at(@posts, @index).title %></h1>
+        <h1><%= Enum.at(@all_posts, @index).title %></h1>
         
         <div>
-          <%= Enum.at(@posts, @index).content %>
+          <%= Enum.at(@all_posts, @index).content %>
         </div>
       </div>
        <.email_form tabindex="2" form={@form} />
