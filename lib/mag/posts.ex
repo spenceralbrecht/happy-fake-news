@@ -25,8 +25,6 @@ defmodule Mag.Posts do
         ]
       })
 
-    IO.inspect("list")
-    IO.inspect(list)
     Mag.Airtable.Subscribers.create(list)
   end
 end

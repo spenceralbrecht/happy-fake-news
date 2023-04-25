@@ -1,40 +1,21 @@
 <section class="relative container mx-auto mt-4 pb-4 px-4 sm:px-6 lg:px-8">
   <.modal :if={@show} on_cancel={JS.push("hide_post")} show={true} id="post-view">
-    <div class="prose">
-      <h1><%= Enum.at(@posts, @index).title %></h1>
-      
-      <div>
-        <%= Enum.at(@posts, @index).content %>
+    <div>
+      <div tabindex="1" class="prose">
+        <h1><%= Enum.at(@posts, @index).title %></h1>
+        
+        <div>
+          <%= Enum.at(@posts, @index).content %>
+        </div>
       </div>
+       <.email_form tabindex="2" form={@form} />
     </div>
   </.modal>
   
-  <%!-- <div :if={@show} id="post-view" class="relative z-50">
-    <div class="flex p-4 justify-center items-center fixed inset-0 bg-zinc-500/90 transition-opacity">
-      <div class="w-full max-w-3xl bg-white rounded-xl p-4 sm:p-6 relative">
-        <div class="absolute top-6 right-5">
-          <button
-            phx-click={JS.hide(%JS{}, to: "#post-view") |> JS.push("hide_post")}
-            type="button"
-            class="-m-3 p-3 opacity-20 hover:opacity-40"
-          >
-            <.icon name="hero-x-mark-solid" class="w-h h-5" />
-          </button>
-        </div>
-        
-        <div class="prose">
-          <h1><%= Enum.at(@posts, @index).title %></h1>
-          
-          <div>
-            <%= Enum.at(@posts, @index).content %>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div> --%>
+  
   <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 auto-rows-auto gap-4">
     <div
-      :for={{post, index} <- Enum.with_index(Enum.take(@posts, 12))}
+      :for={{post, index} <- Enum.with_index(Enum.take(@featured_posts, 12))}
       class="featured-post rounded-xl relative text-white px-4 py-12"
       style={post.image !== nil && "background: transparent;"}
     >
@@ -64,7 +45,7 @@
       <div class="h-[1px] translate-y-[4px] w-full bg-black self-center"></div>
     </h2>
     
-    <div>
+    <div id="all-posts" phx-hook="InfiniteScroll">
       <div
         :for={{post, index} <- Enum.with_index(@posts)}
         phx-click="show_post"
@@ -76,6 +57,20 @@
         
         <p><%= String.slice(post.content, 0..180) %>...</p>
       </div>
+
     </div>
+
+    <div id="loading-bar" class="flex hidden">
+      <div class="mx-auto rounded-lg py-2 px-12 font-black flex bg-black text-white">
+        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <div>
+          Loading More...
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
