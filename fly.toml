@@ -1,13 +1,10 @@
-# fly.toml file generated for damp-glitter-4044 on 2023-04-27T23:21:46+05:30
+# fly.toml file generated for damp-glitter-4044 on 2023-04-27T23:41:55+05:30
 
 app = "damp-glitter-4044"
 kill_signal = "SIGTERM"
 kill_timeout = 5
-primary_region = "bos"
+primary_region = "dfw"
 processes = []
-
-#[deploy]
-  #release_command = "/app/bin/migrate"
 
 [env]
   PHX_HOST = "damp-glitter-4044.fly.dev"
