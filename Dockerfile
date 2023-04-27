@@ -79,13 +79,14 @@ ENV LC_ALL en_US.UTF-8
 
 WORKDIR "/app"
 RUN chown nobody /app
-RUN chmod +x /app/bin/*
+
 
 # set runner ENV
 ENV MIX_ENV="prod"
 
 # Only copy the final release from the build stage
 COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/mag ./
+RUN chmod +x /app/bin/*
 
 USER nobody
 
