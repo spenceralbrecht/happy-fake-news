@@ -6,7 +6,29 @@ defmodule Mag.Airtable do
 
   def publish(id) do
     IO.puts("setting published to true of id #{id}")
-    %{}
+    url = "https://api.airtable.com/v0/#{@baseId}/#{@tableIdOrName}/#{id}"
+
+    {:ok, _response} =
+      Finch.build(
+        :patch,
+        url,
+        [
+          {
+            "Authorization",
+            "Bearer #{@pat}"
+          },
+          {
+            "Content-Type",
+            "application/json"
+          }
+        ],
+        Jason.encode_to_iodata!(%{
+          "fields" => %{
+            "published" => true
+          }
+        })
+      )
+      |> Finch.request(Mag.Finch)
   end
 
   def list(offset \\ "") do
