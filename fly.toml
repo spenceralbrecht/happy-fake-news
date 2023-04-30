@@ -1,13 +1,13 @@
 # fly.toml file generated for damp-glitter-4044 on 2023-04-27T23:41:55+05:30
 
-app = "damp-glitter-4044"
+app = "happy-headlines"
 kill_signal = "SIGTERM"
 kill_timeout = 5
 primary_region = "dfw"
 processes = []
 
 [env]
-  PHX_HOST = "damp-glitter-4044.fly.dev"
+  PHX_HOST = "happy-headlines.fly.dev"
   PORT = "8080"
 
 [experimental]
