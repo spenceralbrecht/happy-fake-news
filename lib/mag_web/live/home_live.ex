@@ -6,16 +6,19 @@ defmodule MagWeb.HomeLive do
 
   def mount(_params, _session, socket) do
     all_posts = Posts.list_posts()
+    featured_posts = Enum.slice(all_posts, length(all_posts) - 12, 12) |> Enum.reverse()
+    all_posts = Enum.slice(all_posts, 0, length(all_posts) - 12) |> Enum.reverse()
 
     {:ok,
      assign(socket,
        all_posts: all_posts,
        posts: Enum.slice(all_posts, 0..4),
-       featured_posts: Enum.slice(all_posts, 0..11),
+       featured_posts: featured_posts,
        current_count: 5,
        show: false,
        form: to_form(email_changeset(%{}), as: "subscribe"),
-       index: 0
+       index: 0,
+       post: nil
      )}
   end
 
@@ -38,7 +41,24 @@ defmodule MagWeb.HomeLive do
   end
 
   def handle_event("show_post", %{"index" => index}, socket) do
-    {:noreply, assign(socket, show: true, index: String.to_integer(index))}
+    {:noreply,
+     assign(socket,
+       show: true,
+       post: Enum.at(socket.assigns.posts, String.to_integer(index), hd(socket.assigns.posts))
+     )}
+  end
+
+  def handle_event("show_featured_post", %{"index" => index}, socket) do
+    {:noreply,
+     assign(socket,
+       show: true,
+       post:
+         Enum.at(
+           socket.assigns.featured_posts,
+           String.to_integer(index),
+           hd(socket.assigns.featured_posts)
+         )
+     )}
   end
 
   def handle_event("hide_post", _payload, socket) do
@@ -56,8 +76,20 @@ defmodule MagWeb.HomeLive do
   def email_form(assigns) do
     ~H"""
     <div>
-      <.form class="flex gap-4 flex-col my-4 w-full" for={@form} phx-change="validate" phx-submit="save">
-         <.input autofocus={false} type="text" class="" placeholder="you@mail.com" phx-debounce="300" field={@form[:email]} />
+      <.form
+        class="flex gap-4 flex-col my-4 w-full"
+        for={@form}
+        phx-change="validate"
+        phx-submit="save"
+      >
+        <.input
+          autofocus={false}
+          type="text"
+          class=""
+          placeholder="you@mail.com"
+          phx-debounce="300"
+          field={@form[:email]}
+        />
         <.button phx-disable-with="Subscribing...">Subscribe</.button>
       </.form>
     </div>
