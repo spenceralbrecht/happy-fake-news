@@ -8,10 +8,8 @@
           <%= Enum.at(@all_posts, @index).content %>
         </div>
       </div>
-       <.email_form tabindex="2" form={@form} />
     </div>
   </.modal>
-  
   
   <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 auto-rows-auto gap-4">
     <div
@@ -37,7 +35,7 @@
        <button phx-click="show_post" phx-value-index={index} class="absolute inset-0"></button>
     </div>
   </div>
-  
+   <.email_form tabindex="2" form={@form} />
   <div class="mt-4">
     <h2 class="flex text-xl gap-4 justify-center font-black">
       <div class="flex-none self-start">More News</div>
@@ -57,20 +55,31 @@
         
         <p><%= String.slice(post.content, 0..180) %>...</p>
       </div>
-
     </div>
-
+    
     <div id="loading-bar" class="flex hidden">
       <div class="mx-auto rounded-lg py-2 px-12 font-black flex bg-black text-white">
-        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        <svg
+          class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+          </circle>
+          
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          >
+          </path>
         </svg>
+        
         <div>
           Loading More...
         </div>
       </div>
     </div>
-
   </div>
 </section>
