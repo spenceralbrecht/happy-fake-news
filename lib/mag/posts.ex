@@ -1,14 +1,21 @@
 defmodule Mag.Posts do
   def list_posts() do
-    Mag.Airtable.Posts.list().records
-    |> Enum.filter(fn r ->
-      r.fields["published"] === true
+    IO.puts("this is getting called")
+    posts = :ets.tab2list(:posts)
+
+    posts
+    |> Enum.map(fn p ->
+      p |> elem(1)
     end)
-    |> Enum.map(fn r ->
+    |> Enum.filter(fn p ->
+      p["fields"]["published"] == true
+    end)
+    |> Enum.map(fn p ->
       %{
-        title: r.fields["headline"],
-        content: r.fields["body"],
-        image: r.fields["image"]
+        title: p["fields"]["headline"],
+        content: p["fields"]["body"],
+        id: p["fields"]["row"],
+        image: p["fields"]["image"]
       }
     end)
   end
