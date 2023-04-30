@@ -17,9 +17,10 @@ defmodule Mag.Application do
       # Start Finch
       {Finch, name: Mag.Finch},
       # Start the Endpoint (http/https)
-      MagWeb.Endpoint
+      MagWeb.Endpoint,
       # Start a worker by calling: Mag.Worker.start_link(arg)
       # {Mag.Worker, arg}
+      Mag.AirtableSupervisor
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
