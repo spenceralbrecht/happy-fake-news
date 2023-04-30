@@ -8,7 +8,8 @@ defmodule Mag.AirtableSupervisor do
   @impl true
   def init(_opts) do
     children = [
-      {Mag.AirtableSyncAndCache, [sync: 3600_000]}
+      {Mag.AirtableSyncAndCache, [sync: 3600_000]},
+      {Mag.AirtablePublishJob, [publish_interval: 60_00]}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

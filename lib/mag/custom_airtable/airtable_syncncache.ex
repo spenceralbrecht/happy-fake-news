@@ -6,7 +6,7 @@ defmodule Mag.AirtableSyncAndCache do
   end
 
   def init(opts) do
-    :ets.new(:posts, [:ordered_set, :named_table])
+    :ets.new(:posts, [:ordered_set, :public, :named_table])
     Process.send_after(self(), :sync, 500)
     {:ok, opts}
   end

@@ -4,6 +4,11 @@ defmodule Mag.Airtable do
   @tableIdOrName "tblEkwzbkAeIsUo3u"
   @list_url "https://api.airtable.com/v0/#{@baseId}/#{@tableIdOrName}?sort[0][field]=row&sort[0][direction]=asc"
 
+  def publish(id) do
+    IO.puts("setting published to true of id #{id}")
+    %{}
+  end
+
   def list(offset \\ "") do
     url =
       case offset do

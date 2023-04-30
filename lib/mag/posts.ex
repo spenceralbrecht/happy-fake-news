@@ -4,6 +4,11 @@ defmodule Mag.Posts do
     posts = :ets.tab2list(:posts)
 
     posts
+    |> Enum.sort(fn a, b ->
+      rowA = a |> elem(1)
+      rowB = b |> elem(1)
+      rowA["fields"]["row"] < rowB["fields"]["row"]
+    end)
     |> Enum.map(fn p ->
       p |> elem(1)
     end)
