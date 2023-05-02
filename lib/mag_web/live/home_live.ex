@@ -86,7 +86,7 @@ defmodule MagWeb.HomeLive do
           autofocus={false}
           type="text"
           class=""
-          placeholder="you@mail.com"
+          placeholder="notdepressed@gmail.com"
           phx-debounce="300"
           field={@form[:email]}
         />
