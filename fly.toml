@@ -7,7 +7,7 @@ primary_region = "dfw"
 processes = []
 
 [env]
-  PHX_HOST = "happy-headlines.fly.dev"
+  PHX_HOST = "happyfakenews.com"
   PORT = "8080"
 
 [experimental]
