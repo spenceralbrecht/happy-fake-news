@@ -18,4 +18,4 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
   * Source: https://github.com/phoenixframework/phoenix
 
 # Deployment
-Deployment automatically happens on a Github push to [https://happy-headlines.fly.dev/](https://happy-headlines.fly.dev/).
+Deployment automatically happens on a Github push to https://happyfakenews.com.
