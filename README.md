@@ -18,4 +18,4 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
   * Source: https://github.com/phoenixframework/phoenix
 
 # Deployment
-Deployment automatically happens on a Github push to https://happyfakenews.com.
+Deployment automatically happens on a Github push to https://happyfakenews.com with a Github Action.
