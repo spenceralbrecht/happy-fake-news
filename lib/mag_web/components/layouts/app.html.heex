@@ -2,17 +2,20 @@
   <div class="flex items-center justify-center border-b border-zinc-100 py-3 text-sm">
     <div class="flex flex-col items-center gap-4">
       <a class="text-4xl font-bold" href="/">
-        Happy Headlines
+        Happy Fake News
       </a>
       <a href="/">
-        Uplifting but completely fake news
+        Uplifting but completely <b>fake</b> news!
       </a>
     </div>
-    <div class="hidden flex items-center gap-4 font-semibold leading-6 text-zinc-900">
-      <a href="https://twitter.com/tweetandcode" class="hover:text-zinc-700">
-        @tweetandcode
-      </a>
+    <div class="fixed top-0 right-0 flex items-center gap-4 font-semibold leading-6 text-zinc-900 p-4">
+        <a href="https://twitter.com/modest_maker" class="hover:text-[#1DA1F2]">
+            made by <span class="text-[#1DA1F2]">@modest_maker</span>
+        </a>
     </div>
+
+
+
   </div>
 </header>
 <main class="transition-all duration-500 opacity-0" phx-mounted={JS.remove_class("opacity-0")}>
