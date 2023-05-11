@@ -1,4 +1,4 @@
-# Mag
+# Running
 
 To start your Phoenix server:
 
