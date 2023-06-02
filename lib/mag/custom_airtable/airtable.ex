@@ -1,5 +1,5 @@
 defmodule Mag.Airtable do
-  @pat "patA24OmXyKKCXSal.5335a2dce1c52fd317a508e597bfc1ea1a79581f0ddfdf58f0c1f086a274403a"
+  @pat "patS6lsr8st93cM2M.9d67d8e95fcca556c40936d90bd2fd3335877fd71d26bac689ed76f41ab9f310"
   @baseId "appi0Ld74mC8AWiM5"
   @tableIdOrName "tblEkwzbkAeIsUo3u"
   @list_url "https://api.airtable.com/v0/#{@baseId}/#{@tableIdOrName}?sort[0][field]=row&sort[0][direction]=asc"
