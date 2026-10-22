@@ -61,7 +61,12 @@ class PreflightTests(unittest.TestCase):
         self.assertEqual(result, 0)
         self.assertTrue(receipt["hasDatabaseUrlSecret"])
         self.assertFalse(receipt["machines"][0]["hasDatabaseUrlPlainConfigEnvironment"])
-        self.assertEqual(self.run_probe(self.machine(), secret_metadata={})[0], 1)
+        result, receipt = self.run_probe(self.machine(), secret_metadata={})
+        self.assertEqual(result, 1)
+        self.assertFalse(receipt["qualified"])
+        self.assertIsNone(receipt["hasDatabaseUrlSecret"])
+        self.assertEqual(receipt["secretMetadataReadStatus"], "unavailable")
+        self.assertEqual(len(receipt["machines"]), 1)
 
 
 if __name__ == "__main__":
