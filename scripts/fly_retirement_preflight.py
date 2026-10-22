@@ -7,6 +7,7 @@ secrets, app logs, databases or customer records; never deploy or mutate.
 import hashlib
 import json
 import os
+import re
 import subprocess
 import sys
 
@@ -46,6 +47,10 @@ def main():
         receipt["deployed"] = status.get("Deployed") is True
         version = status.get("Version")
         receipt["releaseVersion"] = version if isinstance(version, int) else None
+        secret_metadata = read_cli("secrets", "list", "--app", APP, "--json")
+        if not isinstance(secret_metadata, list) or any(not isinstance(s, dict) or not isinstance(s.get("name"), str) for s in secret_metadata):
+            raise RuntimeError("incomplete secret metadata")
+        receipt["hasDatabaseUrlSecret"] = any(s["name"] == "DATABASE_URL" for s in secret_metadata)
         machines = read_cli("machine", "list", "--app", APP, "--json")
         receipt["machineCount"] = len(machines)
         receipt["imageHashes"] = sorted({digest(json.dumps(m.get("image_ref"), sort_keys=True)) for m in machines})
@@ -68,6 +73,10 @@ def main():
                 "mountCount": len(config.get("mounts", [])),
                 "serviceAutostart": [s.get("autostart") for s in config.get("services", [])],
                 "legacyDisableMachineAutostart": config.get("disable_machine_autostart"),
+                "sourceRevisions": sorted({value for key, value in (machine.get("image_ref", {}).get("labels") or {}).items() if key in ("org.opencontainers.image.revision", "org.label-schema.vcs-ref") and isinstance(value, str) and re.fullmatch(r"[0-9a-f]{40}", value)}),
+                "hasCustomInit": bool(config.get("init")),
+                "hasInjectedFiles": bool(config.get("files")),
+                "hasDatabaseUrlPlainConfigEnvironment": "DATABASE_URL" in config.get("env", {}),
             })
         receipt["qualified"] = True
     except Exception:
