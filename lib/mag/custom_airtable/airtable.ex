@@ -1,5 +1,4 @@
 defmodule Mag.Airtable do
-  @pat "patS6lsr8st93cM2M.9d67d8e95fcca556c40936d90bd2fd3335877fd71d26bac689ed76f41ab9f310"
   @baseId "appi0Ld74mC8AWiM5"
   @tableIdOrName "tblEkwzbkAeIsUo3u"
   @list_url "https://api.airtable.com/v0/#{@baseId}/#{@tableIdOrName}?sort[0][field]=row&sort[0][direction]=asc"
@@ -15,7 +14,7 @@ defmodule Mag.Airtable do
         [
           {
             "Authorization",
-            "Bearer #{@pat}"
+            "Bearer #{personal_access_token!()}"
           },
           {
             "Content-Type",
@@ -44,7 +43,7 @@ defmodule Mag.Airtable do
       Finch.build(:get, url, [
         {
           "Authorization",
-          "Bearer #{@pat}"
+          "Bearer #{personal_access_token!()}"
         }
       ])
       |> Finch.request(Mag.Finch)
@@ -73,5 +72,12 @@ defmodule Mag.Airtable do
             {records, list(offset)}
         end
     end)
+  end
+
+  defp personal_access_token!() do
+    case System.get_env("AIRTABLE_PERSONAL_ACCESS_TOKEN") do
+      token when is_binary(token) and byte_size(token) > 0 -> token
+      _ -> raise "AIRTABLE_PERSONAL_ACCESS_TOKEN must be configured at runtime"
+    end
   end
 end

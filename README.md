@@ -19,3 +19,9 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
 
 # Deployment
 Deployment automatically happens on a Github push to https://happyfakenews.com with a Github Action.
+
+Configure `AIRTABLE_PERSONAL_ACCESS_TOKEN` in the deployment's secret store before
+deploying. Airtable reads and publishing load this value at runtime and fail before
+sending a request when it is missing or empty. Never commit the token or place it
+in build arguments. Previously exposed tokens must be revoked in the owning
+Airtable account; removing them from current source does not revoke them.
