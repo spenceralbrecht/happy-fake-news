@@ -35,6 +35,6 @@ defmodule MagWeb.HomeController do
 
 
   def home(conn, _params) do
-    render(conn, :home, posts: posts)
+    render(conn, :home, posts: posts())
   end
 end
