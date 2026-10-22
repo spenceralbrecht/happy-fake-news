@@ -46,9 +46,26 @@ def main():
         receipt["deployed"] = status.get("Deployed") is True
         version = status.get("Version")
         receipt["releaseVersion"] = version if isinstance(version, int) else None
-        machines = status.get("Machines", [])
+        machines = read_cli("machine", "list", "--app", APP, "--json")
         receipt["machineCount"] = len(machines)
         receipt["imageHashes"] = sorted({digest(json.dumps(m.get("image_ref"), sort_keys=True)) for m in machines})
+        receipt["machines"] = []
+        for machine in machines:
+            config = machine.get("config", {})
+            receipt["machines"].append({
+                "idHash": digest(machine.get("id", "")),
+                "configHash": digest(json.dumps(config, sort_keys=True)),
+                "state": machine.get("state") if machine.get("state") in ("started", "stopped", "suspended", "created", "destroyed") else "other",
+                "cordoned": machine.get("cordoned") is True,
+                "rootfsPersist": config.get("rootfs", {}).get("persist"),
+                "legacyRootfsPersist": config.get("guest", {}).get("persist_rootfs"),
+                "restartPolicy": config.get("restart", {}).get("policy"),
+                "hasSchedule": bool(config.get("schedule")),
+                "hasStandbys": bool(config.get("standbys")),
+                "autoDestroy": config.get("auto_destroy") is True,
+                "mountCount": len(config.get("mounts", [])),
+                "serviceAutostart": [s.get("autostart") for s in config.get("services", [])],
+            })
         receipt["qualified"] = True
     except Exception:
         # Do not print provider errors: they can contain identities or credentials.
