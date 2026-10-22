@@ -22,5 +22,6 @@ jobs:
           otp-version: '27.3.4.19'
           elixir-version: '1.18.4'
       - run: mix deps.get
+      - run: python3 -m unittest discover -s scripts -p 'test_*.py'
       - run: mix compile
       - run: mix run --no-start test/retirement_smoke.exs

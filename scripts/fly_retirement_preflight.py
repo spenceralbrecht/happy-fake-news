@@ -51,7 +51,9 @@ def main():
         receipt["imageHashes"] = sorted({digest(json.dumps(m.get("image_ref"), sort_keys=True)) for m in machines})
         receipt["machines"] = []
         for machine in machines:
-            config = machine.get("config", {})
+            config = machine.get("config")
+            if machine.get("host_status") != "ok" or not isinstance(config, dict) or not config.get("image") or machine.get("incomplete_config"):
+                raise RuntimeError("incomplete machine metadata")
             receipt["machines"].append({
                 "idHash": digest(machine.get("id", "")),
                 "configHash": digest(json.dumps(config, sort_keys=True)),
@@ -65,6 +67,7 @@ def main():
                 "autoDestroy": config.get("auto_destroy") is True,
                 "mountCount": len(config.get("mounts", [])),
                 "serviceAutostart": [s.get("autostart") for s in config.get("services", [])],
+                "legacyDisableMachineAutostart": config.get("disable_machine_autostart"),
             })
         receipt["qualified"] = True
     except Exception:
