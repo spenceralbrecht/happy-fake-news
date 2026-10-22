@@ -11,7 +11,7 @@ import stop_happy_fly as stop
 
 class StopTests(unittest.TestCase):
     def fixture(self):
-        config = {"image": "private-image", "env": {"KEY": "private-secret"}, "services": [{"protocol": "tcp"}], "mounts": [], "guest": {"memory_mb": 256}}
+        config = {"image": "private-image", "env": {"KEY": "private-secret"}, "services": [{"protocol": "tcp"}], "mounts": [], "guest": {"memory_mb": 256}, "restart": {}}
         return [{"id": "machine-1", "state": "started", "host_status": "ok", "cordoned": False, "config": copy.deepcopy(config)}, {"id": "machine-2", "state": "stopped", "host_status": "ok", "cordoned": False, "config": copy.deepcopy(config)}]
 
     def execute(self, fault=None, machines=None):
@@ -83,6 +83,20 @@ class StopTests(unittest.TestCase):
         updated.pop("disable_machine_autostart")
         updated["services"][0]["autostart"] = False
         self.assertEqual(stop.preserved_fields(original), stop.preserved_fields(updated))
+
+    def test_resumed_empty_restart_preserves_full_original_fingerprint(self):
+        machines = self.fixture()
+        target = machines[1]
+        target["cordoned"] = True
+        target["config"].update({"rootfs": {"persist": "always"}, "restart": {"policy": "no"}})
+        target["config"]["services"][0]["autostart"] = False
+        result, calls, _ = self.execute(machines=machines)
+        self.assertEqual(result, 0)
+        self.assertEqual([c[2] for c in calls if c[1] == "update"], ["machine-1"])
+        machines[0]["config"]["guest"]["memory_mb"] = 512
+        result, calls, _ = self.execute(machines=machines)
+        self.assertEqual(result, 1)
+        self.assertEqual(calls, [])
 
 
 if __name__ == "__main__":

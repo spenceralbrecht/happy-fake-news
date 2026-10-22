@@ -31,7 +31,11 @@ def qualify(machines):
         if config.get("auto_destroy") or config.get("schedule") or config.get("standbys"):
             raise RuntimeError("unsafe lifecycle policy")
         original = config_hash(config) == EXPECTED_CONFIG
-        resumed = desired(config) and config_hash(preserved_fields(config)) == EXPECTED_CONFIG
+        restored = preserved_fields(config)
+        # Fly serialized the verified original restart policy as {}, not absent.
+        # Restore that observed representation before comparing the full hash.
+        restored["restart"] = {}
+        resumed = desired(config) and config_hash(restored) == EXPECTED_CONFIG
         if machine.get("state") not in ("started", "stopped") or not (original or resumed):
             raise RuntimeError("machine configuration changed")
 
@@ -89,6 +93,7 @@ def main():
             # default ephemeral write layers can be reset by stopping itself.
             if not desired(target["config"]):
                 mutate("machine", "update", machine["id"], "--app", APP, "--rootfs-persist", "always", "--autostart=false", "--restart", "no", "--skip-start", "--yes")
+            receipt["phase"] = "verify-persistence"
             protected = read_cli("machine", "list", "--app", APP, "--json")
             qualify(protected)
             target = next(m for m in protected if m["id"] == machine["id"])
