@@ -47,10 +47,6 @@ def main():
         receipt["deployed"] = status.get("Deployed") is True
         version = status.get("Version")
         receipt["releaseVersion"] = version if isinstance(version, int) else None
-        secret_metadata = read_cli("secrets", "list", "--app", APP, "--json")
-        if not isinstance(secret_metadata, list) or any(not isinstance(s, dict) or not isinstance(s.get("name"), str) for s in secret_metadata):
-            raise RuntimeError("incomplete secret metadata")
-        receipt["hasDatabaseUrlSecret"] = any(s["name"] == "DATABASE_URL" for s in secret_metadata)
         machines = read_cli("machine", "list", "--app", APP, "--json")
         receipt["machineCount"] = len(machines)
         receipt["imageHashes"] = sorted({digest(json.dumps(m.get("image_ref"), sort_keys=True)) for m in machines})
@@ -78,6 +74,13 @@ def main():
                 "hasInjectedFiles": bool(config.get("files")),
                 "hasDatabaseUrlPlainConfigEnvironment": "DATABASE_URL" in config.get("env", {}),
             })
+        receipt["secretMetadataReadStatus"] = "unavailable"
+        receipt["hasDatabaseUrlSecret"] = None
+        secret_metadata = read_cli("secrets", "list", "--app", APP, "--json")
+        if not isinstance(secret_metadata, list) or any(not isinstance(s, dict) or not isinstance(s.get("name"), str) for s in secret_metadata):
+            raise RuntimeError("incomplete secret metadata")
+        receipt["hasDatabaseUrlSecret"] = any(s["name"] == "DATABASE_URL" for s in secret_metadata)
+        receipt["secretMetadataReadStatus"] = "available"
         receipt["qualified"] = True
     except Exception:
         # Do not print provider errors: they can contain identities or credentials.
