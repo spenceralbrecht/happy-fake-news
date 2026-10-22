@@ -7,6 +7,7 @@ secrets, app logs, databases or customer records; never deploy or mutate.
 import hashlib
 import json
 import os
+import re
 import subprocess
 import sys
 
@@ -68,6 +69,10 @@ def main():
                 "mountCount": len(config.get("mounts", [])),
                 "serviceAutostart": [s.get("autostart") for s in config.get("services", [])],
                 "legacyDisableMachineAutostart": config.get("disable_machine_autostart"),
+                "sourceRevisions": sorted({value for key, value in (machine.get("image_ref", {}).get("labels") or {}).items() if key in ("org.opencontainers.image.revision", "org.label-schema.vcs-ref") and isinstance(value, str) and re.fullmatch(r"[0-9a-f]{40}", value)}),
+                "hasCustomInit": bool(config.get("init")),
+                "hasInjectedFiles": bool(config.get("files")),
+                "hasDatabaseUrlEnvironment": "DATABASE_URL" in config.get("env", {}),
             })
         receipt["qualified"] = True
     except Exception:

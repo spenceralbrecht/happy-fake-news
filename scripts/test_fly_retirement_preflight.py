@@ -42,6 +42,18 @@ class PreflightTests(unittest.TestCase):
         self.assertEqual(self.run_probe(self.machine(), email="wrong@example.invalid")[0], 1)
         self.assertEqual(self.run_probe(self.machine(), app="wrong-app")[0], 1)
 
+    def test_storage_metadata_does_not_emit_private_values_or_untrusted_labels(self):
+        machine = self.machine()
+        machine["image_ref"] = {"labels": {"org.opencontainers.image.revision": "a" * 40, "org.label-schema.vcs-ref": "private-secret", "private-label": "private-env"}}
+        machine["config"].update({"init": {"cmd": ["private-secret"]}, "files": [{"raw_value": "private-secret"}], "env": {"DATABASE_URL": "private-secret"}})
+        result, receipt = self.run_probe(machine)
+        self.assertEqual(result, 0)
+        evidence = receipt["machines"][0]
+        self.assertEqual(evidence["sourceRevisions"], ["a" * 40])
+        self.assertTrue(evidence["hasCustomInit"])
+        self.assertTrue(evidence["hasInjectedFiles"])
+        self.assertTrue(evidence["hasDatabaseUrlEnvironment"])
+
 
 if __name__ == "__main__":
     unittest.main()
