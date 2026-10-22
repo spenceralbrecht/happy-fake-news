@@ -10,7 +10,23 @@ The exact GitHub Fly deployment workflow (`.github/workflows/elixir.yaml`, ID
 without a verified Fly account/application route and an explicitly authorized
 maintenance action. Retirement authority does not authorize reactivation.
 GitHub source retirement and repository archival do not prove that the old Fly
-runtime is stopped; its account and live deployment remain separately unverified.
+runtime is stopped; runtime retirement requires its own provider readback.
+
+The existing GitHub credential subsequently matched the expected owner and exact
+`happy-headlines` app (release12, two retained Machines) in read-only run39776768537.
+The manual master-only `Retire exact Happy Headlines Fly app` workflow is narrowly
+bound to those machine/configuration fingerprints. It cordons and gracefully
+stops them, then sets rootfs persistence to `always`, proxy autostart to false and
+restart policy to `no`, using `--skip-start`. It checks that all other configuration
+is preserved. It does not deploy a new image or delete Machines, volumes or secrets.
+`fly.toml` mirrors these retirement controls; the original deploy workflow remains
+disabled. Source preparation alone does not prove this manual operation ran.
+
+For authorized recovery, use the verified provider account and retained Machines;
+the operation emits prior state/cordon/autostart/restart/rootfs settings under
+hashed IDs. Preserve `always` rootfs persistence while recovering data. Reactivating
+the old image restores retired behavior and known legacy exposure, so requires a
+fresh security and ownership qualification; do not blindly restart or redeploy it.
 
 Validation uses the public repository's read-only `Retirement validation`
 workflow: compile the locked dependencies and run `mix run --no-start
