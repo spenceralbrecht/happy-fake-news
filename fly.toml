@@ -14,6 +14,8 @@ processes = []
   auto_rollback = true
 
 [[services]]
+  # Retired: keep retained Machines from waking on incoming traffic.
+  auto_start_machines = false
   http_checks = []
   internal_port = 8080
   processes = ["app"]
@@ -38,3 +40,9 @@ processes = []
     interval = "15s"
     restart_limit = 0
     timeout = "2s"
+
+[[restart]]
+  policy = "never"
+
+[[vm]]
+  persist_rootfs = "always"

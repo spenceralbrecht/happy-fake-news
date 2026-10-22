@@ -1,0 +1,29 @@
+name: Retire exact Happy Headlines Fly app
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: happy-headlines-retirement
+  cancel-in-progress: false
+
+jobs:
+  retire:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: superfly/flyctl-actions/setup-flyctl@ed8efb33836e8b2096c7fd3ba1c8afe303ebbff1
+        with:
+          version: '0.4.118'
+      - name: Stop only verified machines and preserve their data
+        run: python3 scripts/stop_happy_fly.py
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+          RETIRE_EXACT_HAPPY_APP: 'true'
