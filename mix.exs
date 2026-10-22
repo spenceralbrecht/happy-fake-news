@@ -50,6 +50,9 @@ defmodule Mag.MixProject do
       {:gettext, "~> 0.20"},
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
+      # The locked Erlang library's Mix metadata omits :ssl; compile it with
+      # its existing Rebar configuration on current Elixir (upstream PR #27).
+      {:ssl_verify_fun, "1.1.6", manager: :rebar3, override: true},
 
       {:ex_airtable, "~> 0.2.9"}
     ]

@@ -1,0 +1,24 @@
+name: Fly retirement preflight (read only)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: superfly/flyctl-actions/setup-flyctl@ed8efb33836e8b2096c7fd3ba1c8afe303ebbff1
+        with:
+          version: '0.4.118'
+      - name: Verify existing identity and exact app without mutation
+        run: python3 scripts/fly_retirement_preflight.py
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
