@@ -18,7 +18,8 @@ defmodule MagWeb.RetirementSmokeTest do
       assert result.status == 410
       assert result.halted
       assert Plug.Conn.get_resp_header(result, "cache-control") == ["no-store"]
-      assert result.resp_body == "Happy Headlines has been retired.\n"
+      expected_body = if method == :head, do: "", else: "Happy Headlines has been retired.\n"
+      assert result.resp_body == expected_body
     end
   end
 
