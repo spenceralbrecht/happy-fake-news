@@ -30,13 +30,16 @@ def qualify(machines):
             raise RuntimeError("incomplete metadata")
         if config.get("auto_destroy") or config.get("schedule") or config.get("standbys"):
             raise RuntimeError("unsafe lifecycle policy")
-        if machine.get("state") not in ("started", "stopped") or config_hash(config) != EXPECTED_CONFIG:
+        original = config_hash(config) == EXPECTED_CONFIG
+        resumed = desired(config) and config_hash(preserved_fields(config)) == EXPECTED_CONFIG
+        if machine.get("state") not in ("started", "stopped") or not (original or resumed):
             raise RuntimeError("machine configuration changed")
 
 
 def preserved_fields(config):
     result = copy.deepcopy(config)
     result.pop("restart", None)
+    result.pop("disable_machine_autostart", None)
     rootfs = result.get("rootfs", {})
     rootfs.pop("persist", None)
     if not rootfs:
@@ -44,6 +47,10 @@ def preserved_fields(config):
     for service in result.get("services", []):
         service.pop("autostart", None)
     return result
+
+
+def desired(config):
+    return config.get("rootfs", {}).get("persist") == "always" and config.get("restart", {}).get("policy") == "no" and bool(config.get("services")) and all(s.get("autostart") is False for s in config["services"])
 
 
 def mutate(*args):
@@ -71,34 +78,32 @@ def main():
         receipt["phase"] = "cordon"
         receipt["mutationAttempted"] = True
         mutate("machine", "cordon", *before, "--app", APP)
-        receipt["phase"] = "stop"
-        for machine in machines:
-            if machine["state"] == "started":
-                mutate("machine", "stop", machine["id"], "--app", APP, "--signal", "SIGTERM", "--timeout", "30", "--wait-timeout", "60s")
-        stopped = read_cli("machine", "list", "--app", APP, "--json")
-        qualify(stopped)
-        if any(m["state"] != "stopped" or not m.get("cordoned") for m in stopped):
-            raise RuntimeError("stop not confirmed")
         receipt["phase"] = "preserve-and-disable-restart"
-        for machine in stopped:
+        for machine in machines:
             current = read_cli("machine", "list", "--app", APP, "--json")
-            if {m["id"] for m in current} != set(before):
-                raise RuntimeError("machine set changed")
+            qualify(current)
             target = next(m for m in current if m["id"] == machine["id"])
-            if target.get("host_status") != "ok" or target.get("incomplete_config") or target.get("state") != "stopped" or not target.get("cordoned") or config_hash(target.get("config")) != EXPECTED_CONFIG:
+            if not target.get("cordoned"):
                 raise RuntimeError("target changed before update")
-            # Official Fly controls: persist existing rootfs across updates,
-            # keep the VM stopped, and disable proxy/start-on-exit behavior.
-            mutate("machine", "update", machine["id"], "--app", APP, "--rootfs-persist", "always", "--autostart=false", "--restart", "no", "--skip-start", "--yes")
+            # Apply persistence in the update transition BEFORE a separate stop:
+            # default ephemeral write layers can be reset by stopping itself.
+            if not desired(target["config"]):
+                mutate("machine", "update", machine["id"], "--app", APP, "--rootfs-persist", "always", "--autostart=false", "--restart", "no", "--skip-start", "--yes")
+            protected = read_cli("machine", "list", "--app", APP, "--json")
+            qualify(protected)
+            target = next(m for m in protected if m["id"] == machine["id"])
+            if not desired(target["config"]):
+                raise RuntimeError("persistence not confirmed before stop")
+            if target["state"] == "started":
+                mutate("machine", "stop", machine["id"], "--app", APP, "--signal", "SIGTERM", "--timeout", "30", "--wait-timeout", "60s")
         receipt["phase"] = "readback"
         final = read_cli("machine", "list", "--app", APP, "--json")
-        if {m["id"] for m in final} != set(before):
-            raise RuntimeError("machine set changed")
+        qualify(final)
         for machine in final:
             config = machine.get("config", {})
             if machine.get("host_status") != "ok" or machine.get("incomplete_config"):
                 raise RuntimeError("incomplete final metadata")
-            if machine["state"] != "stopped" or not machine.get("cordoned") or config.get("rootfs", {}).get("persist") != "always" or config.get("restart", {}).get("policy") != "no" or any(s.get("autostart") is not False for s in config.get("services", [])):
+            if machine["state"] != "stopped" or not machine.get("cordoned") or not desired(config):
                 raise RuntimeError("retirement readback failed")
             if preserved_fields(config) != preserved_fields(before[machine["id"]]["config"]):
                 raise RuntimeError("unrelated configuration changed")

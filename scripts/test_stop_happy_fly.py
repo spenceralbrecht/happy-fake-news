@@ -14,9 +14,9 @@ class StopTests(unittest.TestCase):
         config = {"image": "private-image", "env": {"KEY": "private-secret"}, "services": [{"protocol": "tcp"}], "mounts": [], "guest": {"memory_mb": 256}}
         return [{"id": "machine-1", "state": "started", "host_status": "ok", "cordoned": False, "config": copy.deepcopy(config)}, {"id": "machine-2", "state": "stopped", "host_status": "ok", "cordoned": False, "config": copy.deepcopy(config)}]
 
-    def execute(self, fault=None):
-        machines = self.fixture()
-        config_hash = stop.config_hash(machines[0]["config"])
+    def execute(self, fault=None, machines=None):
+        machines = self.fixture() if machines is None else machines
+        config_hash = stop.config_hash(self.fixture()[0]["config"])
         status = {"Name": stop.APP, "ID": "private-app", "Organization": {"name": "private-org"}, "Version": 12}
         calls = []
         def read(*args):
@@ -29,8 +29,12 @@ class StopTests(unittest.TestCase):
             if args[1] == "cordon":
                 for machine in machines: machine["cordoned"] = True
             elif args[1] == "stop":
-                next(m for m in machines if m["id"] == args[2])["state"] = "stopped"
+                target = next(m for m in machines if m["id"] == args[2])
+                self.assertTrue(stop.desired(target["config"]))
+                target["state"] = "stopped"
             elif args[1] == "update":
+                if fault == "second-update" and args[2] == "machine-2":
+                    raise RuntimeError("temporary provider failure")
                 target = next(m for m in machines if m["id"] == args[2])
                 target["config"]["rootfs"] = {"persist": "always"}
                 target["config"]["restart"] = {"policy": "no"}
@@ -48,7 +52,7 @@ class StopTests(unittest.TestCase):
         result, calls, receipt = self.execute()
         self.assertEqual(result, 0)
         self.assertTrue(receipt["preservedConfigVerified"])
-        self.assertEqual([c[1] for c in calls], ["cordon", "stop", "update", "update"])
+        self.assertEqual([c[1] for c in calls], ["cordon", "update", "stop", "update"])
         for call in calls:
             if call[1] == "update":
                 self.assertIn("--skip-start", call)
@@ -63,6 +67,22 @@ class StopTests(unittest.TestCase):
     def test_provider_failure_and_unrelated_drift_fail(self):
         for fault in ["provider", "drift"]:
             with self.subTest(fault=fault): self.assertEqual(self.execute(fault)[0], 1)
+
+    def test_partial_update_can_resume_without_rewriting_completed_machine(self):
+        machines = self.fixture()
+        self.assertEqual(self.execute("second-update", machines)[0], 1)
+        self.assertTrue(stop.desired(machines[0]["config"]))
+        result, calls, _ = self.execute(machines=machines)
+        self.assertEqual(result, 0)
+        self.assertEqual([c[2] for c in calls if c[1] == "update"], ["machine-2"])
+
+    def test_legacy_autostart_representation_is_normalized(self):
+        original = self.fixture()[0]["config"]
+        original["disable_machine_autostart"] = True
+        updated = copy.deepcopy(original)
+        updated.pop("disable_machine_autostart")
+        updated["services"][0]["autostart"] = False
+        self.assertEqual(stop.preserved_fields(original), stop.preserved_fields(updated))
 
 
 if __name__ == "__main__":

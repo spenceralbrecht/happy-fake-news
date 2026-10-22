@@ -15,9 +15,11 @@ runtime is stopped; runtime retirement requires its own provider readback.
 The existing GitHub credential subsequently matched the expected owner and exact
 `happy-headlines` app (release12, two retained Machines) in read-only run39776768537.
 The manual master-only `Retire exact Happy Headlines Fly app` workflow is narrowly
-bound to those machine/configuration fingerprints. It cordons and gracefully
-stops them, then sets rootfs persistence to `always`, proxy autostart to false and
-restart policy to `no`, using `--skip-start`. It checks that all other configuration
+bound to those machine/configuration fingerprints. It cordons them, then applies
+rootfs persistence `always`, proxy autostart false and restart policy `no` together
+using `--skip-start`. It verifies persistence before any separate graceful stop.
+It accepts the exact verified original or fully retired configuration so partial
+provider failures can be resumed safely. It checks that all other configuration
 is preserved. It does not deploy a new image or delete Machines, volumes or secrets.
 `fly.toml` mirrors these retirement controls; the original deploy workflow remains
 disabled. Source preparation alone does not prove this manual operation ran.
